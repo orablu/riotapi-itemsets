@@ -6,7 +6,7 @@ import requests.packages.urllib3.contrib.pyopenssl as pyopenssl
 
 pyopenssl.inject_into_urllib3()
 
-class RiotAPI(object):
+class RiotApi(object):
     """API calls for the Riot Games API."""
 
     def __init__(self, api_key, region=Consts.REGIONS['north_america']):
@@ -41,4 +41,19 @@ class RiotAPI(object):
             version=Consts.API_VERSIONS['matchhistory'],
             summonerId=summoner)
         return self._request(api_url)
+
+class RiotApiHelper(object):
+    """Helper methods for getting certain types of data from the Riot API."""
+
+    def __init__(self, api):
+        """Creates a new helper wrapper around a RiotApi."""
+        self.api = api
+
+    def get_summoner_id_by_name(self, name):
+        """Gets the id associated with the given summoner name."""
+        return self.api.get_summoner_by_name(name)[name]['id']
+
+    def get_match_history_by_name(self, name):
+        """Gets the match history associated with the given summoner name."""
+        return self.api.get_match_history(self.get_summoner_id_by_name(name))
 
