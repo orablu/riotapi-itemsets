@@ -6,7 +6,7 @@ import requests.packages.urllib3.contrib.pyopenssl as pyopenssl
 
 pyopenssl.inject_into_urllib3()
 
-class RiotApi(object):
+class RiotAPI(object):
     """API calls for the Riot Games API."""
 
     def __init__(self, api_key, region=Consts.REGIONS['north_america']):
@@ -42,18 +42,46 @@ class RiotApi(object):
             summonerId=summoner)
         return self._request(api_url)
 
-class RiotApiHelper(object):
-    """Helper methods for getting certain types of data from the Riot API."""
-
-    def __init__(self, api):
-        """Creates a new helper wrapper around a RiotApi."""
-        self.api = api
-
     def get_summoner_id_by_name(self, name):
         """Gets the id associated with the given summoner name."""
-        return self.api.get_summoner_by_name(name)[name]['id']
+        return self.get_summoner_by_name(name)[name]['id']
 
     def get_match_history_by_name(self, name):
         """Gets the match history associated with the given summoner name."""
-        return self.api.get_match_history(self.get_summoner_id_by_name(name))
+        return self.get_match_history(self.get_summoner_id_by_name(name))
+
+    def get_recent_stats_by_name(self, name):
+        """Gets the recent stats associated with the given summoner name."""
+        matches = self.get_match_history_by_name(name)
+        matches = matches['matches']
+        stats = []
+        for match in matches:
+            participant = match['participants'][0]
+            p_champion = participant['championId']
+            p_stats = participant['stats']
+            p_stats['championId'] = p_champion
+            stats.append(p_stats)
+        return stats
+
+    def get_recent_builds_by_name(self, name):
+        """Gets the recent item builds associated with the given summoner name."""
+        stats_per_match = self.get_recent_stats_by_name(name)
+        f_stats_per_match = [
+            {
+                'championId': stats['championId'],
+                'items': [
+                    stats['item0'],
+                    stats['item1'],
+                    stats['item2'],
+                    stats['item3'],
+                    stats['item4'],
+                    stats['item5'],
+                    stats['item6'],
+                ],
+                'wards': stats['sightWardsBoughtInGame'],
+                'visionWards': stats['visionWardsBoughtInGame'],
+            }
+            for stats in stats_per_match
+        ]
+        return f_stats_per_match
 
