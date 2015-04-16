@@ -63,3 +63,6 @@ target/
 *~
 *.swp
 *.swo
+
+# System files
+.Ds_Store
