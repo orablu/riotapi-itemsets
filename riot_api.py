@@ -8,45 +8,38 @@ import requests.packages.urllib3.contrib.pyopenssl as pyopenssl
 
 pyopenssl.inject_into_urllib3()
 
+def _api_request(base_url, api_url, image=False, **kwargs):
+    """Sends a request to the server, and returns the response in JSON form."""
+    url = base_url.format(
+        version=Consts.API_VERSIONS['static'],
+        url=api_url),
+    if image:
+        return url
+    else:
+        return requests.get(url, params=kwargs).json()
+
 class _StaticAPI(object):
     """Static API calls for the Riot Games API."""
 
-    def __init__(self, api_key):
-        """Creates new api wrapper for the given region (defaults to NA)."""
-        self.api_key = api_key
-
-    def _request(self, api_url, image=False, **kwargs):
-        """Sends a request to the server, and returns the response in JSON form."""
-        args = {'api_key': self.api_key}
-        for key, value in kwargs.items():
-            if key not in args:
-                args[key] = value
-        response = requests.get(
-            Consts.URL['static_base'].format(
-                version=Consts.API_VERSIONS['static'],
-                url=api_url),
-            params=args)
-        if image:
-            return response.content
-        else:
-            return response.json()
+    def __init__(self):
+        self.base_url = Consts.URL['static_base'].format(Consts.API_VERSIONS['static'])
 
     def get_item_name(self, item_id):
         """Gets the name associated with the given item id."""
         api_url = Consts.URL['item_name'].format(language=Consts.LANGUAGES['english'])
-        return self._request(api_url)['data']['{id}'.format(id=item_id)]['name']
+        return _api_request(self.base_url, api_url)['data']['{id}'.format(id=item_id)]['name']
 
     def get_item_icon(self, item_id):
         """Gets the image associated with the item id."""
         api_url = Consts.URL['item_icon'].format(itemId=item_id)
-        return self._request(api_url, image=True)
+        return _api_request(self.base_url, api_url, image=True)
 
     def get_champion_icon(self, champion_name):
         """Gets the image associated with the champion name."""
         api_url = Consts.URL['champion_icon'].format(championName=champion_name)
-        return self._request(api_url, image=True)
+        return _api_request(self.base_url, api_url, image=True)
 
-STATIC_API = _StaticAPI(API_KEY)
+STATIC_API = _StaticAPI()
 
 class _RiotAPI(object):
     """API calls for the Riot Games API."""
@@ -54,21 +47,12 @@ class _RiotAPI(object):
     def __init__(self, api_key, region=Consts.REGIONS['north_america']):
         """Creates new api wrapper for the given region (defaults to NA)."""
         self.api_key = api_key
-        self.region = region
+        self.base_url = Consts.URL['base'].format(proxy=region, region=region)
 
     def _request(self, api_url, **kwargs):
         """Sends a request to the server, and returns the response in JSON form."""
-        args = {'api_key': self.api_key}
-        for key, value in kwargs.items():
-            if key not in args:
-                args[key] = value
-        response = requests.get(
-            Consts.URL['base'].format(
-                proxy=self.region,
-                region=self.region,
-                url=api_url),
-            params=args)
-        return response.json()
+        kwargs['api_key'] = self.api_key
+        return _api_request(self.base_url, api_url, **kwargs)
 
     def get_summoner(self, name):
         """Gets the summoner data belonging to the summoner name."""
@@ -109,6 +93,7 @@ class _RiotAPI(object):
         return [
             MatchData(
                 match_id=stats['matchId'],
+                won=stats['winner'],
                 champion=stats['championId'],
                 items=[
                     stats['item0'],

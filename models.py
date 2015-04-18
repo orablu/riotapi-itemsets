@@ -1,6 +1,6 @@
 """Data models for the riot api."""
 
-from riot_api import STATIC_API as StaticAPI
+from riot_api import STATIC_API
 
 class MatchData(object):
     """Match data."""
@@ -30,8 +30,8 @@ class Item(object):
 
     def __init__(self, item_id):
         self.item_id = item_id
-        self.name = StaticAPI.get_item_name(item_id)
-        self.icon_url = StaticAPI.get_item_icon(item_id)
+        self.name = STATIC_API.get_item_name(item_id)
+        self.icon_url = STATIC_API.get_item_icon(item_id)
         self.matches = []
         self.wins = 0
         self.losses = 0
