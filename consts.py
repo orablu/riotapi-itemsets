@@ -11,6 +11,10 @@ REGIONS = {
     'north_america': 'na',
 }
 
+LANGUAGES = {
+    'english': 'en_US',
+}
+
 URL = {
     'base': 'https://{proxy}.api.pvp.net/api/lol/{region}/{url}',
     'summoner_by_name': 'v{version}/summoner/by-name/{names}',
@@ -18,6 +22,7 @@ URL = {
 
     'static_base': 'http://ddragon.leagueoflegends.com/cdn/{version}/{url}',
     'item_icon': 'img/item/{itemId}',
+    'item_data': 'data/{language}/item.json',
     'champion_icon': 'img/champion/{championName}',
 }
 

@@ -31,6 +31,11 @@ class _StaticAPI(object):
         else:
             return response.json()
 
+    def get_item_name(self, item_id):
+        """Gets the name associated with the given item id."""
+        api_url = Consts.URL['item_name'].format(language=Consts.LANGUAGES['english'])
+        return self._request(api_url)['data']['{id}'.format(id=item_id)]['name']
+
     def get_item_icon(self, item_id):
         """Gets the image associated with the item id."""
         api_url = Consts.URL['item_icon'].format(itemId=item_id)
