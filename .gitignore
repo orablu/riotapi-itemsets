@@ -65,3 +65,6 @@ target/
 *~
 *.swp
 *.swo
+
+# OSX
+.DS_Store
