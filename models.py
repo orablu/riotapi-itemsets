@@ -7,10 +7,10 @@ class MatchData(object):
 
     matches = 0
 
-    def __init__(self, match_id, won, champion, items, wards, vision_wards):
+    def __init__(self, match_id, match_won, champion, items, wards, vision_wards):
         MatchData.matches += 1
         self.match_id = match_id
-        self.won = won
+        self.won = match_won
         self.champion = champion
         self.items = items
         self.wards = wards

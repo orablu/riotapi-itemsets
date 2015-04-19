@@ -21,8 +21,8 @@ URL = {
     'match_history_by_id': 'v{version}/matchhistory/{summonerId}',
 
     'static_base': 'http://ddragon.leagueoflegends.com/cdn/{version}/{url}',
-    'item_icon': 'img/item/{itemId}',
+    'item_icon': 'img/item/{itemId}.png',
     'item_data': 'data/{language}/item.json',
-    'champion_icon': 'img/champion/{championName}',
+    'champion_splash': 'img/champion/{championName}.png',
 }
 
