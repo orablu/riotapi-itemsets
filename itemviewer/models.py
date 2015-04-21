@@ -6,8 +6,8 @@ from viewmodels.riot_api import STATIC_API
 class Summoner(models.Model):
     """A summoner database object."""
 
-    summoner_name = models.CharField(unique=True, max_length=50)
-    summoner_id = models.IntegerField(unique=True)
+    summoner_name = models.CharField(unique=True, max_length=50, default='')
+    summoner_id = models.IntegerField(unique=True, default=0)
 
     def __unicode__(self):
         return 'Summoner {0}'.format(self.summoner_name)
@@ -16,18 +16,18 @@ class Match(models.Model):
     """Match data."""
 
     summoner = models.ForeignKey(Summoner)
-    match_id = models.IntegerField(unique=True)
-    match_won = models.BooleanField()
-    champion = models.IntegerField()
-    item0 = models.IntegerField()
-    item1 = models.IntegerField()
-    item2 = models.IntegerField()
-    item3 = models.IntegerField()
-    item4 = models.IntegerField()
-    item5 = models.IntegerField()
-    item6 = models.IntegerField()
-    wards = models.IntegerField()
-    vision_wards = models.IntegerField()
+    match_id = models.IntegerField(unique=True, default=0)
+    match_won = models.BooleanField(default=False)
+    champion = models.IntegerField(default=0)
+    item0 = models.IntegerField(null=True)
+    item1 = models.IntegerField(null=True)
+    item2 = models.IntegerField(null=True)
+    item3 = models.IntegerField(null=True)
+    item4 = models.IntegerField(null=True)
+    item5 = models.IntegerField(null=True)
+    item6 = models.IntegerField(null=True)
+    wards = models.IntegerField(default=0)
+    vision_wards = models.IntegerField(default=0)
 
     def __unicode__(self):
         return 'Match {0}: {1}, {2}, {3} sight wards, {4} vision wards'.format(
