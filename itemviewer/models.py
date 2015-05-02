@@ -15,19 +15,10 @@ class Summoner(models.Model):
 class Match(models.Model):
     """Match data."""
 
-    summoner = models.ForeignKey(Summoner)
+    main_summoner = models.ForeignKey(Summoner)
+    match_type = models.CharField(max_length='50', default='Unknown')
     match_id = models.IntegerField(unique=True, default=0)
-    match_won = models.BooleanField(default=False)
-    champion = models.IntegerField(default=0)
-    item0 = models.IntegerField(null=True)
-    item1 = models.IntegerField(null=True)
-    item2 = models.IntegerField(null=True)
-    item3 = models.IntegerField(null=True)
-    item4 = models.IntegerField(null=True)
-    item5 = models.IntegerField(null=True)
-    item6 = models.IntegerField(null=True)
-    wards = models.IntegerField(default=0)
-    vision_wards = models.IntegerField(default=0)
+    match_duration = models.IntegerField(default=0)
 
     def __unicode__(self):
         return 'Match {0}: {1}, {2}, {3} sight wards, {4} vision wards'.format(
@@ -38,31 +29,50 @@ class Match(models.Model):
             self.vision_wards
         )
 
-class Item(object):
+class Participant(models.Model):
+    """Represents the match data for a participant in the match."""
+
+    match = models.ForeignKey(Match)
+    summoner = models.ForeignKey(Summoner)
+    champion_id = models.IntegerField(default=0)
+    is_opponent = models.BooleanField(default=True)
+    match_won = models.BooleanField(default=False)
+    wards = models.IntegerField(default=0)
+
+    def set_participant_from_data(self, participant, teams, main_team_id = None):
+        self.champion_id = participant['championId']
+        self.is_opponent = main_team_id and participant['teamId'] != main_team_id
+        for team in teams:
+            if team['teamId'] == participant['teamId']:
+                self.match_won = team['winner']
+        item_ids = [
+            participant['stats']['item0'],
+            participant['stats']['item1'],
+            participant['stats']['item2'],
+            participant['stats']['item3'],
+            participant['stats']['item4'],
+            participant['stats']['item5'],
+            participant['stats']['item6'],
+        ]
+        self.wards = participant['stats']['wardsPlaced']
+        for item_id in item_ids:
+            if item_id is not 0:
+                item = Item.objects.get_or_create(item_id=item_id)
+                item.participants.add(self)
+
+class Item(models.Model):
     """Represents an item and its usage stats."""
+
+    item_id = models.IntegerField(default=0)
+    item_name = models.CharField(max_length=50, default='')
+    icon_url = models.CharField(max_length=300, default='')
+    participants = models.ManyToManyField(Participant)
 
     def __init__(self, item_id):
         self.item_id = item_id
-        self.name = STATIC_API.get_item_name(item_id)
+        self.item_name = STATIC_API.get_item_name(item_id)
         self.icon_url = STATIC_API.get_item_icon(item_id)
-        self.matches = []
-        self.wins = 0
-        self.losses = 0
-
-    def add_match(self, match_id, won):
-        """Adds a match to the stats (unless it already exists)."""
-        if match_id in self.matches:
-            return
-        self.matches.append(match_id)
-        if won:
-            self.wins += 1
-        else:
-            self.losses += 1
-
-    def get_stats(self):
-        """Get item frequency, win percent, and loss percent."""
-        matches = self.wins + self.losses
-        return matches / Match.objects.count, self.wins / matches, self.losses / matches
 
     def __hash__(self):
         return self.item_id
+
