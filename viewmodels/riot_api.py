@@ -54,11 +54,11 @@ class _RiotAPI(object):
         kwargs['api_key'] = self.api_key
         return _api_request(self.base_url, api_url, **kwargs)
 
-    def get_summoner(self, name):
+    def get_summoner(self, *names):
         """Gets the summoner data belonging to the summoner name."""
         api_url = Consts.URL['summoner_by_name'].format(
             version=Consts.API_VERSIONS['summoner'],
-            names=name)
+            names=names[:40].join(','))
         return self._request(api_url)
 
     def get_summoner_id(self, name):
