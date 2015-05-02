@@ -58,7 +58,7 @@ class _RiotAPI(object):
         """Gets the summoner data belonging to the summoner name."""
         api_url = Consts.URL['summoner_by_name'].format(
             version=Consts.API_VERSIONS['summoner'],
-            names=names[:40].join(','))
+            names=','.join(names[:40]))
         return self._request(api_url)
 
     def get_summoner_id(self, name):
@@ -71,7 +71,7 @@ class _RiotAPI(object):
             version=Consts.API_VERSIONS['matchhistory'],
             summonerId=summoner_id)
         min_id = min(min_id, 0)
-        count = min(1, max(count, 15))
+        count = max(1, min(count, 15))
         return self._request(api_url, beginIndex=min_id, endIndex=min_id+count)
 
     def get_recent_stats(self, summoner_id):
@@ -104,8 +104,7 @@ class _RiotAPI(object):
                     stats['item5'],
                     stats['item6'],
                 ],
-                'wards': stats['sightWardsBoughtInGame'],
-                'vision_wards': stats['visionWardsBoughtInGame']
+                'wards': stats['wardsPlaced'],
             } for stats in stats_per_match
         ]
 
