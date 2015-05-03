@@ -1,7 +1,7 @@
 """Item Viewer models."""
 
 from django.db import models
-from viewmodels.riot_api import STATIC_API
+from viewmodels.riot_api import RIOT_API as API, STATIC_API
 
 class Summoner(models.Model):
     """A summoner database object."""

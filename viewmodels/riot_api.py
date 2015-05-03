@@ -9,8 +9,7 @@ pyopenssl.inject_into_urllib3()
 
 def _api_request(base_url, api_url, image=False, **kwargs):
     """Sends a request to the server, and returns the response in JSON form."""
-    url = base_url.format(
-        url=api_url)
+    url = base_url.format(url=api_url)
     if image:
         return url
     else:
@@ -72,41 +71,6 @@ class _RiotAPI(object):
             summonerId=summoner_id)
         min_id = min(min_id, 0)
         count = max(1, min(count, 15))
-        return self._request(api_url, beginIndex=min_id, endIndex=min_id+count)
-
-    def get_recent_stats(self, summoner_id):
-        """Gets the recent stats associated with the given summoner name."""
-        matches = self.get_match_history(summoner_id)
-        matches = matches['matches']
-        stats = []
-        for match in matches:
-            participant = match['participants'][0]
-            p_stats = participant['stats']
-            p_stats['matchId'] = match['matchId']
-            p_stats['championId'] = participant['championId']
-            stats.append(p_stats)
-        return stats
-
-    def get_recent_builds(self, summoner_id):
-        """Gets the recent item builds associated with the given summoner name."""
-        stats_per_match = self.get_recent_stats(summoner_id)
-        return [
-            {
-                'match_id': stats['matchId'],
-                'match_won': stats['winner'],
-                'champion': stats['championId'],
-                'items': [
-                    stats['item0'],
-                    stats['item1'],
-                    stats['item2'],
-                    stats['item3'],
-                    stats['item4'],
-                    stats['item5'],
-                    stats['item6'],
-                ],
-                'wards': stats['wardsPlaced'],
-            } for stats in stats_per_match
-        ]
+        return self._request(api_url, beginIndex=min_id, endIndex=min_id+count)['matches']
 
 RIOT_API = _RiotAPI(API_KEY)
-
